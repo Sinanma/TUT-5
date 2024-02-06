@@ -1,0 +1,103 @@
+---
+title: "Tutorial 5"
+subtitle: "Prime Ministers of Australia Information"
+author: Sinan Ma
+thanks: "Code and data are available at: https://github.com/Sinanma/TUT-5"
+date: today
+date-format: long
+format: pdf
+toc: true
+number-sections: true
+bibliography: references.bib
+---
+
+```{r}
+#| include: false
+#| warning: false
+#| message: false
+library(tidyverse)
+library(here)
+library(knitr)
+```
+
+
+# Introduction
+This project analyzes the lifespans of Australian Prime Ministers using Wikipedia data. Through the process of gathering, cleaning, and analyzing this data, it is aiming to show insights into the country's political leadership patterns and historical governance dynamics. 
+
+The data is gathered from *List of Prime Ministers of Australia* [@Wikipedia_2023]. We used the following packages in R(@citeR) to analyze the data: @tidyverse, @knitr, @here, @janitor, @dplyr, and the knowledge from *Telling Stories with Data* [@tellingstorieswithdata].
+
+# Data {#sec-data}
+The table(@tbl-minister) lists the birth and death years of Australian Prime Ministers, along with their ages at death. Some of recent Prime Ministers are still alive, as indicated by the 'NA' in their death year and age at death columns, reflecting the recency of their terms in office.
+
+```{r}
+#| label: tbl-minister
+#| tbl-cap: How long each prime minister of the Australia lived
+#| echo: false
+#| warning: false
+#| message: false
+
+cleaned_data <- read_csv(here::here("outputs/data/cleaned_data.csv"))
+
+cleaned_data |>
+  kable(
+    col.names = c("Prime Minister", "Birth year", "Death year", "Age at death")
+    )
+```
+\newpage
+
+
+The graph(@fig-minister) shows the lifespans of Australian Prime Ministers, with red lines representing those who have passed away and blue for those who still alive. It have a time period from the 19th to the 21st century, and illustrates a historical overview of their lives in relation to their years of birth.
+
+
+```{r}
+#| label: fig-minister
+#| fig-cap: How long each prime minister of the Australia lived
+#| echo: false
+#| warning: false
+#| message: false
+
+cleaned_data <- read_csv(here::here("outputs/data/cleaned_data.csv"))
+
+cleaned_data |>
+  mutate(
+    still_alive = if_else(is.na(died), "Yes", "No"),
+    died = if_else(is.na(died), as.integer(2023), died)
+  ) |>
+  mutate(name = as_factor(name)) |>
+  ggplot(
+    aes(x = born, xend = died, y = name, yend = name, color = still_alive)
+    ) +
+  geom_segment() +
+  labs(
+    x = "Year of birth", y = "Prime minister", color = "PM is currently alive"
+    ) +
+  theme_minimal() +
+  scale_color_brewer(palette = "Set1") +
+  theme(legend.position = "bottom")
+```
+
+#Result
+From the data we can determine that there was no clear correlation between the lifespan of Prime Ministers and their time role, indicating that factors determining political longevity are varied. The tenure patterns provided insights in significant political events, such as world wars and economic crises, that may led to shifts in leadership.
+
+# Method
+Data was gathered using web scraping techniques. Tools such as rvest[@rvest] in R is used to extract the required information from the website page.
+
+# Discussion
+
+## Data Source and Gathering
+Wikipedia is a rich source of all information, but extracting structured data from HTML needed to pay more attention detail, especially in correctly identifying and analyzing the relevant table elements.
+
+## Data Cleaning
+After gathering the data, the information has to be cleaned and structured to be useful for analysis. This process involved: extracting individual data points (names, birth and death years), handling missing values, and etc..
+
+## Challenges
+The most time-consuming part was cleaning the data, especially handling the various formats of dates and dealing with missing information. However, resolving these issues is quite engaging for me.
+
+
+
+\newpage
+
+
+# References
+
+
